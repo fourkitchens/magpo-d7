@@ -1,0 +1,7 @@
+name = Magnetic Poetry
+description = A bit of code to better make magnetic poetry happen.
+core = 7.x
+package = FourKitchens
+
+dependencies[] = ctools
+dependencies[] = services

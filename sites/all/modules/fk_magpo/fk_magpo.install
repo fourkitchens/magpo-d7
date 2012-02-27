@@ -1,0 +1,15 @@
+<?php
+
+/*
+ * Implementation of hook_install().
+ */
+function fk_magpo_install(){
+  variable_set('fk_magpo_vocabularies', 0);
+}
+
+/*
+ * Implementation of hook_uninstall().
+ */
+function fk_magpo_uninstall(){
+  variable_del('fk_magpo_vocabularies');
+}
