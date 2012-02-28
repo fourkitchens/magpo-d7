@@ -17,12 +17,62 @@ function fk_magpo_menu() {
 }
 
 /*
+ * Implementation of hook_form_FORM_ID_alter.
+ *
+ * @param $form
+ *
+ * @param $form_state
+ *
+ * @param $form_id
+ * 
+ */
+function fk_magpo_form_taxonomy_form_vocabulary_alter(&$form, &$form_state, $form_id) {
+  // Prevent form from being created when it is confirm screen to delete.
+  if (!isset($form['confirm'])) {
+    $magpo = variable_get('fk_magpo_vocabularies', array());
+    $vid = isset($form['vid']['#value']) ? $form['vid']['#value'] : 0;
+    $form['#submit'][] = 'fk_magpo_form_taxonomy_form_vocabulary_submit';
+    $form['fk_magpo'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Use for Magnetic Poetry.'),
+      '#default_value' => isset($magpo[$vid]),
+    );
+  }
+}
+
+/*
+ * Custom submit function for 
+ *
+ * @param $form
+ *
+ * @param $form_state
+ * 
+ */
+function fk_magpo_form_taxonomy_form_vocabulary_submit(&$form, &$form_state) {
+  $magpo = variable_get('fk_magpo_vocabularies', array());
+  // If the user deletes the vocabulary, remove it from the variable.
+  // Else, add or remove it per the value of the checkbox.
+  $value = $form_state['values']['op'] == 'Delete' ? FALSE : $form_state['values']['fk_magpo'];
+  $vid = $form_state['values']['vid'];
+  $name = $form_state['values']['name'];
+
+  if ($value == FALSE && isset($magpo[$vid])) {
+    unset($magpo[$vid]);
+  }
+  elseif ($value) {
+    $magpo[$vid] = $name;
+  }
+  
+  variable_set('fk_magpo_vocabularies', $magpo);  
+}
+
+/*
  * Displays all vocabulary terms as a JSON export.
  */
 function fk_magpo_json() {
-  $vocabs = variable_get('fk_magpo_vocabularies', 0);
+  $vocabs = variable_get('fk_magpo_vocabularies', array());
   
-  if (!is_array($vocabs) || empty($vocabs)) {
+  if (!is_array($vocabs)) {
     $vocabs = array();
     $temp = taxonomy_get_vocabularies();
     foreach($temp as $vid => $obj) {
