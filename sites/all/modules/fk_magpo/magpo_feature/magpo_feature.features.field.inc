@@ -49,7 +49,7 @@ function magpo_feature_field_default_fields() {
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => 0,
+          'weight' => '0',
         ),
         'teaser' => array(
           'label' => 'hidden',
@@ -118,11 +118,10 @@ function magpo_feature_field_default_fields() {
       'description' => '',
       'display' => array(
         'default' => array(
-          'label' => 'above',
-          'module' => 'text',
+          'label' => 'hidden',
           'settings' => array(),
-          'type' => 'text_default',
-          'weight' => 1,
+          'type' => 'hidden',
+          'weight' => '2',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -151,10 +150,73 @@ function magpo_feature_field_default_fields() {
     ),
   );
 
+  // Exported field: 'node-poem-field_poem_vote'
+  $fields['node-poem-field_poem_vote'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_poem_vote',
+      'foreign keys' => array(),
+      'indexes' => array(),
+      'module' => 'vud_field',
+      'settings' => array(
+        'votingapi_tag' => 'vote',
+        'vud_widget' => 'updown',
+      ),
+      'translatable' => '0',
+      'type' => 'vud_field',
+    ),
+    'field_instance' => array(
+      'bundle' => 'poem',
+      'default_value' => array(
+        0 => array(
+          'vud_widget' => 'updown',
+          'votingapi_tag' => 'vote',
+        ),
+      ),
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'vud_field',
+          'settings' => array(),
+          'type' => 'default',
+          'weight' => '1',
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_poem_vote',
+      'label' => 'Vote',
+      'required' => 0,
+      'settings' => array(
+        'user_register_form' => FALSE,
+        'votingapi_tag' => 'vote',
+        'vud_widget' => 'updown',
+      ),
+      'widget' => array(
+        'active' => 0,
+        'module' => 'vud_field',
+        'settings' => array(),
+        'type' => 'vud_field_default_widget',
+        'weight' => '-2',
+      ),
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Poem Text');
   t('Unique ID');
+  t('Vote');
 
   return $fields;
 }
