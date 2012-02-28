@@ -1,0 +1,3 @@
+[submodule "magpo"]
+	path = magpo
+	url = git@github.com:fourkitchens/Magnetic-Poetry.git
