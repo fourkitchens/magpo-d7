@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the MagPo Feature feature.
+ */
+
+include_once('magpo_feature.features.inc');
