@@ -42,7 +42,7 @@ function fk_magpo_json() {
       $words[] = array(
         'vid' => $vid,
         'id' => $row->tid,
-        'name' => $row->name,
+        'string' => $row->name,
       );
     }
     
@@ -54,7 +54,6 @@ function fk_magpo_json() {
   } 
     
   drupal_json_output($data);
-  module_invoke_all('exit');
-  exit;
+  drupal_exit();
   
 }
