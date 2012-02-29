@@ -16,7 +16,9 @@ function magpo_feature_default_services_endpoint() {
   $endpoint->name = 'poem';
   $endpoint->server = 'rest_server';
   $endpoint->path = 'poem_rest';
-  $endpoint->authentication = array();
+  $endpoint->authentication = array(
+    'services' => 'services',
+  );
   $endpoint->server_settings = array(
     'rest_server' => array(
       'formatters' => array(
@@ -30,10 +32,10 @@ function magpo_feature_default_services_endpoint() {
       ),
       'parsers' => array(
         'application/json' => TRUE,
-        'application/x-www-form-urlencoded' => TRUE,
-        'multipart/form-data' => TRUE,
         'application/vnd.php.serialized' => FALSE,
+        'application/x-www-form-urlencoded' => FALSE,
         'application/x-yaml' => FALSE,
+        'multipart/form-data' => FALSE,
       ),
     ),
   );
@@ -54,8 +56,11 @@ function magpo_feature_default_services_endpoint() {
           'enabled' => 1,
         ),
       ),
-      'relationships' => array(
-        'comments' => array(
+    ),
+    'user' => array(
+      'alias' => 'u',
+      'actions' => array(
+        'login' => array(
           'enabled' => 1,
         ),
       ),
