@@ -107,3 +107,29 @@ function fk_magpo_json() {
   drupal_exit();
   
 }
+
+
+function fk_magpo_preprocess_node(&$vars) {
+  if (isset($vars['type']) && $vars['type'] == 'poem') {
+    $uuid = $vars['field_poem_unique_id']['und'][0]['safe_value'];
+    $url = "http://magpo.webchefs.org/magpo/app/load/" . $uuid;
+    $return = drupal_http_request($url);
+    drupal_add_js(array('fk_magpo' => array('json' => $return->data, 'uuid' => $uuid)), 'setting');
+    drupal_add_js(drupal_get_path('module', 'fk_magpo') . '/fk_magpo.js');
+    $vars['json_procesed_html'] = fk_magpo_json_process($return->data);
+  }
+}
+
+function fk_magpo_json_process($json) {
+  $object = json_decode($json);
+  if(isset($object->status) && $object->status == 'ok') {
+    $return = '<div class="fk-magpo-container-error">';
+    foreach($object->poem->words as $word) {
+      $return .= '<div class="fk-magpo-word fk-magpo-word-vid-' . $word->vid . '">' . $word->string . '</div>';
+    }    
+    $return .= '</div>';
+  } else {
+    $return = '<div class="fk-magpo-container-error"></div>';
+  };
+  return $return;
+}
