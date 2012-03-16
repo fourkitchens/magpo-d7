@@ -1,22 +1,22 @@
 <?php
 
-/*
+/**
  * Implementation of hook_menu().
  */
 function fk_magpo_menu() {
   $items = array();
-  
+
   $items['magpo/json'] = array(
     'title' => 'Magnetic Poetry: JSON',
     'page callback' => 'fk_magpo_json',
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
-  
+
   return $items;
 }
 
-/*
+/**
  * Implementation of hook_form_FORM_ID_alter.
  *
  * @param $form
@@ -24,7 +24,7 @@ function fk_magpo_menu() {
  * @param $form_state
  *
  * @param $form_id
- * 
+ *
  */
 function fk_magpo_form_taxonomy_form_vocabulary_alter(&$form, &$form_state, $form_id) {
   // Prevent form from being created when it is confirm screen to delete.
@@ -40,13 +40,13 @@ function fk_magpo_form_taxonomy_form_vocabulary_alter(&$form, &$form_state, $for
   }
 }
 
-/*
- * Custom submit function for 
+/**
+ * Custom submit function for
  *
  * @param $form
  *
  * @param $form_state
- * 
+ *
  */
 function fk_magpo_form_taxonomy_form_vocabulary_submit(&$form, &$form_state) {
   $magpo = variable_get('fk_magpo_vocabularies', array());
@@ -62,16 +62,16 @@ function fk_magpo_form_taxonomy_form_vocabulary_submit(&$form, &$form_state) {
   elseif ($value) {
     $magpo[$vid] = $name;
   }
-  
-  variable_set('fk_magpo_vocabularies', $magpo);  
+
+  variable_set('fk_magpo_vocabularies', $magpo);
 }
 
-/*
+/**
  * Displays all vocabulary terms as a JSON export.
  */
 function fk_magpo_json() {
   $vocabs = variable_get('fk_magpo_vocabularies', array());
-  
+
   if (!is_array($vocabs)) {
     $vocabs = array();
     $temp = taxonomy_get_vocabularies();
@@ -79,7 +79,7 @@ function fk_magpo_json() {
       $vocabs[$vid] = $obj->name;
     }
   }
-  
+
   $data = array();
   foreach($vocabs as $vid => $name) {
     $words = array();
@@ -95,17 +95,15 @@ function fk_magpo_json() {
         'string' => $row->name,
       );
     }
-    
+
     $data[] = array(
       'id' => $vid,
       'name' => $name,
       'words' => $words,
     );
-  } 
-    
+  }
+
   drupal_json_output($data);
-  drupal_exit();
-  
 }
 
 
@@ -126,9 +124,10 @@ function fk_magpo_json_process($json) {
     $return = '<div class="fk-magpo-container-error">';
     foreach($object->poem->words as $word) {
       $return .= '<div class="fk-magpo-word fk-magpo-word-vid-' . $word->vid . '">' . $word->string . '</div>';
-    }    
+    }
     $return .= '</div>';
-  } else {
+  }
+  else {
     $return = '<div class="fk-magpo-container-error"></div>';
   };
   return $return;
