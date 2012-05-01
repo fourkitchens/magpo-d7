@@ -1,11 +1,28 @@
 <?php
 
 /**
- * Implementation of hook_menu().
+ * @file
+ * Drupal related MagPo operations.
+ */
+
+// Module constants.
+define('FK_MAGPO_ENDPOINT', 'http://localhost:3000');
+define('FK_MAGPO_STATUS_ENDPOINT', '/admin/%s/status');
+
+/**
+ * Implements hook_menu().
  */
 function fk_magpo_menu() {
   $items = array();
 
+  $items['admin/config/system/fk-magpo'] = array(
+    'title' => 'Magnetic Poetry',
+    'description' => 'Configure API endpoint for MagPo.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('fk_magpo_settings'),
+    'file' => 'fk_magpo.pages.inc',
+    'access arguments' => array('administer site configuration'),
+  );
   $items['magpo/json'] = array(
     'title' => 'Magnetic Poetry: JSON',
     'page callback' => 'fk_magpo_json',
@@ -17,7 +34,35 @@ function fk_magpo_menu() {
 }
 
 /**
- * Implementation of hook_form_FORM_ID_alter.
+ * Implements hook_node_update().
+ */
+function fk_magpo_node_update($node) {
+  if ($node->type !== 'poem' || empty($node->field_poem_unique_id['und'][0]['value'])) {
+    return;
+  }
+
+  // Handle a published state change.
+  if ($node->status !== $node->original->status) {
+    fk_magpo_unpublish_poem($node);
+  }
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function fk_magpo_node_delete($node) {
+  if ($node->type !== 'poem' || empty($node->field_poem_unique_id['und'][0]['value'])) {
+    return;
+  }
+
+  // Set published status to false so the poem gets handled correctly.
+  $node->status = 0;
+
+  fk_magpo_unpublish_poem($node);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter.
  *
  * @param $form
  *
@@ -132,3 +177,40 @@ function fk_magpo_json_process($json) {
   };
   return $return;
 }
+
+/**
+ * Unpublishes a poem on the node side when the poem node
+ * has been unpublished or deleted.
+ */
+function fk_magpo_unpublish_poem($node) {
+  $url = variable_get('fk_magpo_endpoint', FK_MAGPO_ENDPOINT) .
+    sprintf(FK_MAGPO_STATUS_ENDPOINT, $node->field_poem_unique_id['und'][0]['value']);
+
+  $options = array(
+    'headers' => array(
+      'Content-Type' => 'application/json'
+    ),
+    'method' => 'POST',
+    'data' => drupal_json_encode(array('status' => (boolean)$node->status))
+  );
+
+  $res = drupal_http_request($url, $options);
+  if ($res->code !== '204') {
+    $data = new stdClass();
+    if (!empty($res->data)) {
+      $data = drupal_json_decode($res->data);
+    }
+    watchdog(
+      'fk_magpo',
+      'There was a problem updating status for node @nid with id @id. Server responded with: @message (@code)',
+      array(
+        '@nid' => $node->nid,
+        '@id' => $node->field_poem_unique_id['und'][0]['value'],
+        '@message' => isset($data->error) ? $data->error : (isset($res->error) ? $res->error : ''),
+        '@code' => $res->code
+      ),
+      WATCHDOG_ERROR
+    );
+  }
+}
+
