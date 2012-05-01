@@ -200,17 +200,18 @@ function fk_magpo_unpublish_poem($node) {
     if (!empty($res->data)) {
       $data = drupal_json_decode($res->data);
     }
-    watchdog(
-      'fk_magpo',
+    $message = t(
       'There was a problem updating status for node @nid with id @id. Server responded with: @message (@code)',
       array(
         '@nid' => $node->nid,
         '@id' => $node->field_poem_unique_id['und'][0]['value'],
         '@message' => isset($data->error) ? $data->error : (isset($res->error) ? $res->error : ''),
         '@code' => $res->code
-      ),
-      WATCHDOG_ERROR
+      )
     );
+    watchdog('fk_magpo', $message, array(), WATCHDOG_ERROR);
+
+    throw new Exception($message);
   }
 }
 
